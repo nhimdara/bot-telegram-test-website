@@ -34,6 +34,7 @@ export default function CartPage({ onShop, onPayment }) {
       clearCart();
       onPayment({ order, payment });
     } catch (err) {
+      setPendingOrder(null);
       setError(err.message);
     } finally {
       setSubmitting(false);
