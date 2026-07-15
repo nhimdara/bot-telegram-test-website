@@ -58,6 +58,7 @@ export default function PaymentPage({ payment: initialPayment, onPaid, onBack, o
           <span className="eyebrow">Secure checkout</span>
           <h1>Pay with Bakong</h1>
           <p className="payment-intro">Scan this KHQR with Bakong or any supported Cambodian banking app.</p>
+          <p className="payment-warning"><b>Important:</b> Pay from a different bank or Bakong account. The receiving account cannot pay itself.</p>
           <div className="qr-frame">
             {qrUrl ? <img src={qrUrl} alt="Bakong KHQR payment code" /> : <div className="qr-loading">Preparing KHQR…</div>}
           </div>

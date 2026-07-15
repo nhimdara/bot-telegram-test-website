@@ -352,6 +352,24 @@ button:disabled {
   transition: transform 0.35s;
   z-index: 1;
 }
+.product-image,
+.detail-product-image {
+  width: 82%;
+  height: 82%;
+  object-fit: contain;
+  z-index: 1;
+  filter: drop-shadow(0 20px 14px rgba(20, 20, 10, 0.16));
+}
+.product-image {
+  transition: transform 0.35s;
+}
+.product-card:hover .product-image {
+  transform: translateY(-7px) scale(1.03);
+}
+.detail-product-image {
+  width: 88%;
+  height: 88%;
+}
 .product-card:hover .product-emoji {
   transform: translateY(-7px) rotate(-3deg) scale(1.04);
 }
@@ -743,6 +761,16 @@ button:disabled {
   font-size: 13px;
   line-height: 1.6;
 }
+.payment-warning {
+  max-width: 410px;
+  margin: -10px auto 20px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #fff2d7;
+  color: #74531f;
+  font-size: 10px;
+  line-height: 1.45;
+}
 .qr-frame {
   width: min(100%, 330px);
   aspect-ratio: 1;
@@ -1117,6 +1145,34 @@ button:disabled {
 }
 .admin-form .primary-button {
   width: max-content;
+}
+.upload-field input[type="file"] {
+  border: 1px dashed #bbb7aa;
+  background: #fff;
+  cursor: pointer;
+}
+.upload-field > span {
+  display: block;
+  margin-top: 6px;
+  color: #667329;
+  font-size: 10px;
+}
+.admin-form-divider {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.admin-form-divider::before,
+.admin-form-divider::after {
+  content: "";
+  height: 1px;
+  flex: 1;
+  background: var(--line);
 }
 .empty-cart,
 .success-state {

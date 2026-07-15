@@ -18,16 +18,34 @@ export default function CategoryPage({ onOpenProduct }) {
   const { addToCart } = useCart();
 
   useEffect(() => {
-    Promise.all([fetchProducts(), fetchCategories()])
+    let active = true;
+    const loadCatalog = (showLoader = false) => {
+      if (showLoader) setLoading(true);
+      return Promise.all([fetchProducts(), fetchCategories()])
       .then(([items, groups]) => {
+        if (!active) return;
         setProducts(items);
         setCollections(groups.map((group, index) => ({
           ...group,
           ...categoryStyles[index % categoryStyles.length],
-      })));
+        })));
+        setError("");
       })
-      .catch(() => setError("We couldn't load the categories. Please make sure the shop API is running."))
-      .finally(() => setLoading(false));
+      .catch(() => active && setError("We couldn't load the categories. Please make sure the shop API is running."))
+      .finally(() => active && setLoading(false));
+    };
+    loadCatalog(true);
+    const refresh = () => loadCatalog(false);
+    const onVisibility = () => { if (document.visibilityState === "visible") refresh(); };
+    const interval = window.setInterval(refresh, 30000);
+    window.addEventListener("focus", refresh);
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      active = false;
+      window.clearInterval(interval);
+      window.removeEventListener("focus", refresh);
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
   }, []);
   const visibleProducts = useMemo(
     () => products.filter((product) => !selected || product.category === selected),

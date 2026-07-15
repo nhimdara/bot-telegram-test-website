@@ -55,9 +55,17 @@ export default function AdminPage() {
     setError("");
     try {
       const resource = tab;
-      const payload = resource === "products"
+      let payload = resource === "products"
         ? { ...form, category_id: Number(form.category_id), price: Number(form.price), stock: Number(form.stock), slug: form.slug || null, image_url: form.image_url || null }
         : { ...form, slug: form.slug || null };
+      if (resource === "products" && form.image_file) {
+        const upload = new FormData();
+        Object.entries(payload).forEach(([key, value]) => {
+          if (key !== "id" && key !== "category" && key !== "image_file" && value !== null && typeof value !== "object") upload.append(key, String(value));
+        });
+        upload.set("image", form.image_file);
+        payload = upload;
+      }
       if (form.id) await updateAdminRecord(resource, form.id, payload);
       else await createAdminRecord(resource, payload);
       setForm(null);
@@ -111,7 +119,7 @@ function CatalogSection({ tab, records, categories, form, setForm, saveForm, sav
       {isProduct && <label>Category<select required value={form.category_id} onChange={(e) => setForm({ ...form, category_id: e.target.value })}><option value="">Choose category</option>{categories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}</select></label>}
       <label>Name<input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></label>
       <label>Slug <small>Optional</small><input value={form.slug || ""} onChange={(e) => setForm({ ...form, slug: e.target.value })} placeholder="Generated from name" /></label>
-      {isProduct && <><label className="admin-form-wide">Description<textarea value={form.description || ""} onChange={(e) => setForm({ ...form, description: e.target.value })} /></label><label className="admin-form-wide">Image URL <small>Optional</small><input type="url" value={form.image_url || ""} onChange={(e) => setForm({ ...form, image_url: e.target.value })} /></label><label>Price<input required min="0" step="0.01" type="number" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} /></label><label>Stock<input required min="0" type="number" value={form.stock} onChange={(e) => setForm({ ...form, stock: e.target.value })} /></label></>}
+      {isProduct && <><label className="admin-form-wide">Description<textarea value={form.description || ""} onChange={(e) => setForm({ ...form, description: e.target.value })} /></label><label className="admin-form-wide upload-field">Upload product image <small>JPG, PNG, WebP or GIF · maximum 5 MB</small><input type="file" accept="image/jpeg,image/png,image/webp,image/gif" onChange={(e) => setForm({ ...form, image_file: e.target.files?.[0] || null })} />{form.image_file && <span>{form.image_file.name}</span>}</label><div className="admin-form-divider"><span>or use a URL</span></div><label className="admin-form-wide">Direct image URL <small>Optional · use an image file URL, not a product page</small><input type="url" value={form.image_url || ""} onChange={(e) => setForm({ ...form, image_url: e.target.value })} placeholder="https://example.com/product.jpg" /></label><label>Price<input required min="0" step="0.01" type="number" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} /></label><label>Stock<input required min="0" type="number" value={form.stock} onChange={(e) => setForm({ ...form, stock: e.target.value })} /></label></>}
       <button className="primary-button" disabled={saving}>{saving ? "Saving…" : "Save record"}</button>
     </form>}
     <div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>Name</th>{isProduct && <><th>Category</th><th>Price</th><th>Stock</th></>} {!isProduct && <th>Products</th>}<th>Actions</th></tr></thead><tbody>{records.map((record) => <tr key={record.id}><td><b>{record.name}</b><small>{record.slug}</small></td>{isProduct && <><td>{record.category?.name}</td><td>{money(record.price)}</td><td><span className={record.stock <= 5 ? "status warning" : "status"}>{record.stock}</span></td></>}{!isProduct && <td>{record.products_count}</td>}<td><div className="row-actions"><button onClick={() => setForm({ ...record, category_id: record.category_id || "" })}>Edit</button><button className="danger" onClick={() => remove(tab, record.id)}>Delete</button></div></td></tr>)}</tbody></table></div>

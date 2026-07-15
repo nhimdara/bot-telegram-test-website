@@ -16,11 +16,13 @@ function lookFor(category) {
 async function request(path, options = {}) {
   const token = sessionStorage.getItem("telegram-shop-token");
   const { responseType, ...fetchOptions } = options;
+  const isFormData = typeof FormData !== "undefined" && options.body instanceof FormData;
   const response = await fetch(`${API_URL}${path}`, {
     ...fetchOptions,
+    cache: fetchOptions.cache || (fetchOptions.method ? "default" : "no-store"),
     headers: {
       Accept: "application/json",
-      ...(options.body ? { "Content-Type": "application/json" } : {}),
+      ...(options.body && !isFormData ? { "Content-Type": "application/json" } : {}),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...options.headers,
     },
@@ -132,16 +134,19 @@ export function fetchAdmin(resource, query = "") {
 }
 
 export function createAdminRecord(resource, data) {
+  const isFormData = typeof FormData !== "undefined" && data instanceof FormData;
   return request(`/admin/${resource}`, {
     method: "POST",
-    body: JSON.stringify(data),
+    body: isFormData ? data : JSON.stringify(data),
   });
 }
 
 export function updateAdminRecord(resource, id, data) {
+  const isFormData = typeof FormData !== "undefined" && data instanceof FormData;
+  if (isFormData) data.append("_method", "PATCH");
   return request(`/admin/${resource}/${encodeURIComponent(id)}`, {
-    method: "PATCH",
-    body: JSON.stringify(data),
+    method: isFormData ? "POST" : "PATCH",
+    body: isFormData ? data : JSON.stringify(data),
   });
 }
 

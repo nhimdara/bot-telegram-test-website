@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { fetchProductById } from "../services/api";
 import { useCart } from "../context/CartContext";
+import ProductVisual from "../components/ProductVisual";
 
 export default function ProductDetail({ productId, onBack, onCart }) {
   const [product, setProduct] = useState(null);
@@ -29,7 +30,7 @@ export default function ProductDetail({ productId, onBack, onCart }) {
       <div className="detail-layout">
         <div className="detail-art" style={{ "--art-a": product.palette[0], "--art-b": product.palette[1] }}>
           {product.badge && <span className="product-badge">{product.badge}</span>}
-          <span className="detail-emoji">{product.emoji}</span>
+          <ProductVisual product={product} detail />
           <span className="art-caption">Luma / {product.category}</span>
         </div>
         <div className="detail-copy">

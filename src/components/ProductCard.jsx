@@ -1,10 +1,12 @@
+import ProductVisual from "./ProductVisual";
+
 export default function ProductCard({ product, onAdd, onOpen }) {
   return (
     <article className="product-card" onClick={() => onOpen?.(product)}>
       <div className="product-art" style={{ "--art-a": product.palette[0], "--art-b": product.palette[1] }}>
         {product.badge && <span className="product-badge">{product.badge}</span>}
         <button className="heart-button" aria-label={`Save ${product.title}`} onClick={(event) => event.stopPropagation()}>♡</button>
-        <span className="product-emoji" aria-hidden="true">{product.emoji}</span>
+        <ProductVisual product={product} />
       </div>
       <div className="product-info">
         <span className="product-category">{product.category}</span>
