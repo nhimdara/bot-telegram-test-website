@@ -6,6 +6,7 @@ import Profile from "./pages/Profile";
 import ProductDetail from "./pages/ProductDetail";
 import CategoryPage from "./pages/CategoryPage";
 import PaymentPage from "./pages/PaymentPage";
+import AdminPage from "./pages/AdminPage";
 import { CartProvider } from "./context/CartContext";
 import { initializeTelegram } from "./services/telegram";
 import { createBakongPayment } from "./services/api";
@@ -43,6 +44,7 @@ export default function App() {
         <Navbar
           route={route === "product" ? productBackRoute : route}
           onNavigate={navigate}
+          isAdmin={Boolean(telegramUser?.is_admin)}
         />
         <main>
           {route === "home" && <Home onOpenProduct={openProduct} />}
@@ -76,6 +78,10 @@ export default function App() {
               error={telegramError}
               onShop={() => navigate("home")}
             />
+          )}
+          {route === "admin" && telegramUser?.is_admin && <AdminPage />}
+          {route === "admin" && !telegramUser?.is_admin && (
+            <div className="empty-cart page-shell"><h1>Administrator access required</h1><p>This page is available only to configured shop administrators.</p></div>
           )}
         </main>
         <footer>

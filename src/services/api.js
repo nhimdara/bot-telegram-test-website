@@ -126,3 +126,27 @@ export function fetchPaymentQr(paymentId) {
     responseType: "blob",
   });
 }
+
+export function fetchAdmin(resource, query = "") {
+  return request(`/admin/${resource}${query}`);
+}
+
+export function createAdminRecord(resource, data) {
+  return request(`/admin/${resource}`, {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+export function updateAdminRecord(resource, id, data) {
+  return request(`/admin/${resource}/${encodeURIComponent(id)}`, {
+    method: "PATCH",
+    body: JSON.stringify(data),
+  });
+}
+
+export function deleteAdminRecord(resource, id) {
+  return request(`/admin/${resource}/${encodeURIComponent(id)}`, {
+    method: "DELETE",
+  });
+}
