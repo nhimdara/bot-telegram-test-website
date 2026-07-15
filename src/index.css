@@ -926,6 +926,12 @@ button:disabled {
   background: #fff;
   cursor: pointer;
 }
+
+.aba-open-button {
+  background: #005f73;
+  border-color: #005f73;
+  color: #fff;
+}
 .payment-card .primary-button {
   max-width: 330px;
 }

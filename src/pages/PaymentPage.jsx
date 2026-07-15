@@ -58,6 +58,14 @@ export default function PaymentPage({ payment: initialPayment, onPaid, onBack, o
   }, [checkPayment, payment.expires_at]);
 
   const expired = payment.status === "expired" || remaining === "00:00";
+  const openAbaMobile = () => {
+    const deeplink = payment.qr?.deeplink;
+    if (!deeplink) {
+      setError("ABA Mobile link is unavailable for this payment.");
+      return;
+    }
+    window.location.href = deeplink;
+  };
   const saveQr = () => {
     const image = new Image();
     image.onload = () => {
@@ -104,7 +112,7 @@ export default function PaymentPage({ payment: initialPayment, onPaid, onBack, o
             <div><b>2</b><span>Choose Scan KHQR</span></div>
             <div><b>3</b><span>Confirm the amount</span></div>
           </div>
-          {isPayWay && !isPayWaySandbox && payment.qr?.deeplink && <a className="save-qr-button" href={payment.qr.deeplink}>Open ABA Mobile</a>}
+          {isPayWay && payment.qr?.deeplink && <button type="button" className="save-qr-button aba-open-button" onClick={openAbaMobile}>Open ABA Mobile</button>}
           {qrUrl && <button type="button" className="save-qr-button" onClick={saveQr}>Save KHQR for another bank app</button>}
           {error && <p className="form-error" role="alert">{error}</p>}
           <button className="primary-button wide" disabled={checking || renewing} onClick={expired ? async () => {
