@@ -9,6 +9,7 @@ export default function Home({ onOpenProduct }) {
   const [category, setCategory] = useState("All");
   const [query, setQuery] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
   const { addToCart } = useCart();
 
   useEffect(() => {
@@ -17,7 +18,8 @@ export default function Home({ onOpenProduct }) {
         setProducts(items);
         setCategories(groups.map((group) => group.name));
       })
-      .catch(() => setError("We couldn't load the collection. Please make sure the shop API is running."));
+      .catch(() => setError("We couldn't load the collection. Please make sure the shop API is running."))
+      .finally(() => setLoading(false));
   }, []);
   const visible = useMemo(() => products.filter((product) =>
     (category === "All" || product.category === category) &&
@@ -51,7 +53,7 @@ export default function Home({ onOpenProduct }) {
         <div className="category-row">
           {["All", ...categories].map((item) => <button key={item} className={category === item ? "active" : ""} onClick={() => setCategory(item)}>{item}</button>)}
         </div>
-        {error ? <div className="empty-search"><span>!</span><h3>Unable to load products</h3><p>{error}</p></div> : products.length === 0 ? <div className="loading-grid">Loading beautiful things…</div> : (
+        {error ? <div className="empty-search"><span>!</span><h3>Unable to load products</h3><p>{error}</p></div> : loading ? <div className="loading-grid">Loading beautiful things…</div> : products.length === 0 ? <div className="empty-search"><span>✦</span><h3>Collection coming soon</h3><p>No products have been added yet.</p></div> : (
           <div className="product-grid">
             {visible.map((product) => <ProductCard key={product.id} product={product} onAdd={addToCart} onOpen={onOpenProduct} />)}
           </div>

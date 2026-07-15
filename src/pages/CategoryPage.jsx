@@ -14,6 +14,7 @@ export default function CategoryPage({ onOpenProduct }) {
   const [collections, setCollections] = useState([]);
   const [selected, setSelected] = useState(null);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
   const { addToCart } = useCart();
 
   useEffect(() => {
@@ -23,9 +24,10 @@ export default function CategoryPage({ onOpenProduct }) {
         setCollections(groups.map((group, index) => ({
           ...group,
           ...categoryStyles[index % categoryStyles.length],
-        })));
+      })));
       })
-      .catch(() => setError("We couldn't load the categories. Please make sure the shop API is running."));
+      .catch(() => setError("We couldn't load the categories. Please make sure the shop API is running."))
+      .finally(() => setLoading(false));
   }, []);
   const visibleProducts = useMemo(
     () => products.filter((product) => !selected || product.category === selected),
@@ -61,7 +63,7 @@ export default function CategoryPage({ onOpenProduct }) {
           <div><span className="eyebrow">{selected ? "Selected collection" : "Everything we love"}</span><h2>{selected || "All products"}</h2></div>
           {selected && <button onClick={() => setSelected(null)}>View all ×</button>}
         </div>
-        {error ? <div className="empty-search"><span>!</span><h3>Unable to load categories</h3><p>{error}</p></div> : products.length === 0 ? <div className="loading-grid">Opening the collection…</div> : (
+        {error ? <div className="empty-search"><span>!</span><h3>Unable to load categories</h3><p>{error}</p></div> : loading ? <div className="loading-grid">Opening the collection…</div> : products.length === 0 ? <div className="empty-search"><span>✦</span><h3>Collection coming soon</h3><p>No products or categories have been added yet.</p></div> : (
           <div className="product-grid">
             {visibleProducts.map((product) => (
               <ProductCard key={product.id} product={product} onAdd={addToCart} onOpen={(item) => onOpenProduct(item, "category")} />
