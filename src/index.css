@@ -810,6 +810,48 @@ button:disabled {
   color: #a43b32;
   font-weight: 700;
 }
+.khqr-instructions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 7px;
+  max-width: 390px;
+  margin: 0 auto 14px;
+}
+.khqr-instructions > div {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  border-radius: 9px;
+  background: #f4f2ec;
+  padding: 8px;
+  text-align: left;
+  font-size: 9px;
+}
+.khqr-instructions b {
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--dark);
+  color: #fff;
+  font-size: 8px;
+}
+.save-qr-button {
+  display: block;
+  width: min(100%, 330px);
+  margin: 0 auto 10px;
+  border: 1px solid var(--dark);
+  border-radius: 999px;
+  padding: 11px 14px;
+  color: var(--dark);
+  text-decoration: none;
+  font-size: 10px;
+  font-weight: 700;
+  background: #fff;
+  cursor: pointer;
+}
 .payment-card .primary-button {
   max-width: 330px;
 }
@@ -1656,6 +1698,9 @@ footer .brand {
   }
   .payment-card h1 {
     font-size: 37px;
+  }
+  .khqr-instructions {
+    grid-template-columns: 1fr;
   }
   .payment-summary {
     order: -1;

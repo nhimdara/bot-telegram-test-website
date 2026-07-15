@@ -49,6 +49,29 @@ export default function PaymentPage({ payment: initialPayment, onPaid, onBack, o
   }, [checkPayment, payment.expires_at]);
 
   const expired = payment.status === "expired" || remaining === "00:00";
+  const saveQr = () => {
+    const image = new Image();
+    image.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = 720;
+      canvas.height = 720;
+      const context = canvas.getContext("2d");
+      context.fillStyle = "#ffffff";
+      context.fillRect(0, 0, canvas.width, canvas.height);
+      context.drawImage(image, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob((blob) => {
+        if (!blob) return setError("Unable to save this KHQR image.");
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `khqr-order-${payment.order_id}.png`;
+        link.click();
+        window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+      }, "image/png");
+    };
+    image.onerror = () => setError("Unable to prepare this KHQR image.");
+    image.src = qrUrl;
+  };
 
   return (
     <div className="payment-page page-shell">
@@ -56,8 +79,8 @@ export default function PaymentPage({ payment: initialPayment, onPaid, onBack, o
       <div className="payment-layout">
         <section className="payment-card">
           <span className="eyebrow">Secure checkout</span>
-          <h1>Pay with Bakong</h1>
-          <p className="payment-intro">Scan this KHQR with Bakong or any supported Cambodian banking app.</p>
+          <h1>Pay with any bank</h1>
+          <p className="payment-intro">This universal KHQR can be paid from any Cambodian banking app that supports KHQR.</p>
           <p className="payment-warning"><b>Important:</b> Pay from a different bank or Bakong account. The receiving account cannot pay itself.</p>
           <div className="qr-frame">
             {qrUrl ? <img src={qrUrl} alt="Bakong KHQR payment code" /> : <div className="qr-loading">Preparing KHQR…</div>}
@@ -66,6 +89,12 @@ export default function PaymentPage({ payment: initialPayment, onPaid, onBack, o
             <span>{expired ? "QR expired" : "QR expires in"}</span>
             {!expired && <strong>{remaining}</strong>}
           </div>
+          <div className="khqr-instructions">
+            <div><b>1</b><span>Open your banking app</span></div>
+            <div><b>2</b><span>Choose Scan KHQR</span></div>
+            <div><b>3</b><span>Confirm the amount</span></div>
+          </div>
+          {qrUrl && <button type="button" className="save-qr-button" onClick={saveQr}>Save KHQR for another bank app</button>}
           {error && <p className="form-error" role="alert">{error}</p>}
           <button className="primary-button wide" disabled={checking || renewing} onClick={expired ? async () => {
             setRenewing(true);
@@ -79,10 +108,10 @@ export default function PaymentPage({ payment: initialPayment, onPaid, onBack, o
         <aside className="payment-summary">
           <span className="eyebrow">Order #{payment.order_id}</span>
           <h2>Payment details</h2>
-          <div><span>Payment method</span><b>Bakong KHQR</b></div>
+          <div><span>Payment method</span><b>Universal KHQR</b></div>
           <div><span>Currency</span><b>{payment.currency}</b></div>
           <div className="payment-total"><span>Amount due</span><strong>{payment.currency === "USD" ? "$" : "៛"}{payment.amount}</strong></div>
-          <div className="bakong-mark"><b>KHQR</b><span>Powered by Bakong</span></div>
+          <div className="bakong-mark"><b>KHQR</b><span>Works with participating Cambodian banks</span></div>
         </aside>
       </div>
     </div>
