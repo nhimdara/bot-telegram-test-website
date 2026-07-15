@@ -10,7 +10,7 @@ import AdminPage from "./pages/AdminPage";
 import PayWayReturnPage from "./pages/PayWayReturnPage";
 import { CartProvider } from "./context/CartContext";
 import { initializeTelegram } from "./services/telegram";
-import { createBakongPayment } from "./services/api";
+import { createBakongPayment, createPayWayQrPayment } from "./services/api";
 
 export default function App() {
   const returnParams = new URLSearchParams(window.location.search);
@@ -68,7 +68,9 @@ export default function App() {
               onBack={() => navigate("home")}
               onPaid={() => setPaid(true)}
               onRenew={async () => {
-                const payment = await createBakongPayment(checkout.order.id);
+                const payment = checkout.payment.provider === "payway"
+                  ? await createPayWayQrPayment(checkout.order.id)
+                  : await createBakongPayment(checkout.order.id);
                 setCheckout((current) => ({ ...current, payment }));
               }}
             />

@@ -123,6 +123,12 @@ export function createPayWayPayment(orderId) {
   });
 }
 
+export function createPayWayQrPayment(orderId) {
+  return request(`/orders/${encodeURIComponent(orderId)}/payway-qr`, {
+    method: "POST",
+  });
+}
+
 export function submitPayWayCheckout(checkout) {
   if (!checkout?.url || !checkout?.fields) {
     throw new Error("ABA PayWay checkout details are missing.");

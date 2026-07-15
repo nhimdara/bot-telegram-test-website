@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { checkBakongPayment, fetchPaymentQr } from "../services/api";
+import { checkBakongPayment, checkPayWayPayment, fetchPaymentQr } from "../services/api";
 
 function timeLeft(expiresAt) {
   const seconds = Math.max(0, Math.floor((new Date(expiresAt).getTime() - Date.now()) / 1000));
@@ -13,8 +13,14 @@ export default function PaymentPage({ payment: initialPayment, onPaid, onBack, o
   const [error, setError] = useState("");
   const [remaining, setRemaining] = useState(() => timeLeft(initialPayment.expires_at));
   const [renewing, setRenewing] = useState(false);
+  const isPayWay = initialPayment.provider === "payway";
 
   useEffect(() => {
+    if (isPayWay) {
+      setQrUrl(initialPayment.qr?.image || "");
+      if (!initialPayment.qr?.image) setError("ABA PayWay did not return a QR image.");
+      return undefined;
+    }
     let objectUrl;
     fetchPaymentQr(initialPayment.id)
       .then((blob) => {
@@ -23,12 +29,14 @@ export default function PaymentPage({ payment: initialPayment, onPaid, onBack, o
       })
       .catch((err) => setError(err.message));
     return () => objectUrl && URL.revokeObjectURL(objectUrl);
-  }, [initialPayment.id]);
+  }, [initialPayment.id, initialPayment.qr?.image, isPayWay]);
 
   const checkPayment = useCallback(async (quiet = false) => {
     if (!quiet) setChecking(true);
     try {
-      const latest = await checkBakongPayment(initialPayment.id);
+      const latest = isPayWay
+        ? await checkPayWayPayment(initialPayment.id)
+        : await checkBakongPayment(initialPayment.id);
       setPayment(latest);
       setError("");
       if (latest.status === "paid") onPaid(latest);
@@ -37,7 +45,7 @@ export default function PaymentPage({ payment: initialPayment, onPaid, onBack, o
     } finally {
       if (!quiet) setChecking(false);
     }
-  }, [initialPayment.id, onPaid]);
+  }, [initialPayment.id, isPayWay, onPaid]);
 
   useEffect(() => {
     const clock = window.setInterval(() => setRemaining(timeLeft(payment.expires_at)), 1000);
@@ -64,7 +72,7 @@ export default function PaymentPage({ payment: initialPayment, onPaid, onBack, o
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.href = url;
-        link.download = `khqr-order-${payment.order_id}.png`;
+        link.download = `${isPayWay ? "payway" : "bakong"}-khqr-order-${payment.order_id}.png`;
         link.click();
         window.setTimeout(() => URL.revokeObjectURL(url), 1000);
       }, "image/png");
@@ -79,11 +87,11 @@ export default function PaymentPage({ payment: initialPayment, onPaid, onBack, o
       <div className="payment-layout">
         <section className="payment-card">
           <span className="eyebrow">Secure checkout</span>
-          <h1>Pay with any bank</h1>
-          <p className="payment-intro">This universal KHQR can be paid from any Cambodian banking app that supports KHQR.</p>
+          <h1>{isPayWay ? "Pay with ABA PayWay KHQR" : "Pay with any bank"}</h1>
+          <p className="payment-intro">This KHQR can be paid from Cambodian banking apps that support KHQR.</p>
           <p className="payment-warning"><b>Important:</b> Pay from a different bank or Bakong account. The receiving account cannot pay itself.</p>
           <div className="qr-frame">
-            {qrUrl ? <img src={qrUrl} alt="Bakong KHQR payment code" /> : <div className="qr-loading">Preparing KHQR…</div>}
+            {qrUrl ? <img src={qrUrl} alt={`${isPayWay ? "ABA PayWay" : "Bakong"} KHQR payment code`} /> : <div className="qr-loading">Preparing KHQR…</div>}
           </div>
           <div className={`payment-timer ${expired ? "expired" : ""}`}>
             <span>{expired ? "QR expired" : "QR expires in"}</span>
@@ -94,6 +102,7 @@ export default function PaymentPage({ payment: initialPayment, onPaid, onBack, o
             <div><b>2</b><span>Choose Scan KHQR</span></div>
             <div><b>3</b><span>Confirm the amount</span></div>
           </div>
+          {isPayWay && payment.qr?.deeplink && <a className="save-qr-button" href={payment.qr.deeplink}>Open ABA Mobile</a>}
           {qrUrl && <button type="button" className="save-qr-button" onClick={saveQr}>Save KHQR for another bank app</button>}
           {error && <p className="form-error" role="alert">{error}</p>}
           <button className="primary-button wide" disabled={checking || renewing} onClick={expired ? async () => {
@@ -108,10 +117,10 @@ export default function PaymentPage({ payment: initialPayment, onPaid, onBack, o
         <aside className="payment-summary">
           <span className="eyebrow">Order #{payment.order_id}</span>
           <h2>Payment details</h2>
-          <div><span>Payment method</span><b>Universal KHQR</b></div>
+          <div><span>Payment method</span><b>{isPayWay ? "ABA PayWay KHQR" : "Universal KHQR"}</b></div>
           <div><span>Currency</span><b>{payment.currency}</b></div>
           <div className="payment-total"><span>Amount due</span><strong>{payment.currency === "USD" ? "$" : "៛"}{payment.amount}</strong></div>
-          <div className="bakong-mark"><b>KHQR</b><span>Works with participating Cambodian banks</span></div>
+          <div className="bakong-mark"><b>{isPayWay ? "ABA PayWay" : "KHQR"}</b><span>Works with participating Cambodian banks</span></div>
         </aside>
       </div>
     </div>
