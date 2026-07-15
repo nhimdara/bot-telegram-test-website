@@ -14,6 +14,7 @@ export default function PaymentPage({ payment: initialPayment, onPaid, onBack, o
   const [remaining, setRemaining] = useState(() => timeLeft(initialPayment.expires_at));
   const [renewing, setRenewing] = useState(false);
   const isPayWay = initialPayment.provider === "payway";
+  const isPayWaySandbox = isPayWay && initialPayment.environment === "sandbox";
 
   useEffect(() => {
     if (isPayWay) {
@@ -89,6 +90,7 @@ export default function PaymentPage({ payment: initialPayment, onPaid, onBack, o
           <span className="eyebrow">Secure checkout</span>
           <h1>{isPayWay ? "Pay with ABA PayWay KHQR" : "Pay with any bank"}</h1>
           <p className="payment-intro">This KHQR can be paid from Cambodian banking apps that support KHQR.</p>
+          {isPayWaySandbox && <p className="payment-warning sandbox-warning"><b>Sandbox QR:</b> Live ABA Mobile and banking apps cannot pay this test transaction. Choose Bakong KHQR for a real payment, or use ABA-issued production PayWay credentials.</p>}
           {!isPayWay && <p className="payment-warning"><b>Important:</b> Pay from a different bank or Bakong account. The receiving account cannot pay itself.</p>}
           <div className={`qr-frame ${isPayWay ? "payway-qr-frame" : ""}`}>
             {qrUrl ? <img src={qrUrl} alt={`${isPayWay ? "ABA PayWay" : "Bakong"} KHQR payment code`} /> : <div className="qr-loading">Preparing KHQR…</div>}
@@ -102,7 +104,7 @@ export default function PaymentPage({ payment: initialPayment, onPaid, onBack, o
             <div><b>2</b><span>Choose Scan KHQR</span></div>
             <div><b>3</b><span>Confirm the amount</span></div>
           </div>
-          {isPayWay && payment.qr?.deeplink && <a className="save-qr-button" href={payment.qr.deeplink}>Open ABA Mobile</a>}
+          {isPayWay && !isPayWaySandbox && payment.qr?.deeplink && <a className="save-qr-button" href={payment.qr.deeplink}>Open ABA Mobile</a>}
           {qrUrl && <button type="button" className="save-qr-button" onClick={saveQr}>Save KHQR for another bank app</button>}
           {error && <p className="form-error" role="alert">{error}</p>}
           <button className="primary-button wide" disabled={checking || renewing} onClick={expired ? async () => {

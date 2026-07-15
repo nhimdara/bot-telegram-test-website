@@ -820,6 +820,12 @@ button:disabled {
   font-size: 10px;
   line-height: 1.45;
 }
+
+.sandbox-warning {
+  background: #fff0ec;
+  color: #8a3028;
+  margin-top: -10px;
+}
 .qr-frame {
   width: min(100%, 330px);
   aspect-ratio: 1;
