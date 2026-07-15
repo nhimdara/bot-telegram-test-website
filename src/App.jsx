@@ -7,12 +7,16 @@ import ProductDetail from "./pages/ProductDetail";
 import CategoryPage from "./pages/CategoryPage";
 import PaymentPage from "./pages/PaymentPage";
 import AdminPage from "./pages/AdminPage";
+import PayWayReturnPage from "./pages/PayWayReturnPage";
 import { CartProvider } from "./context/CartContext";
 import { initializeTelegram } from "./services/telegram";
 import { createBakongPayment } from "./services/api";
 
 export default function App() {
-  const [route, setRoute] = useState("home");
+  const returnParams = new URLSearchParams(window.location.search);
+  const payWayPaymentId = returnParams.get("payway_payment");
+  const payWayCancelled = returnParams.get("payway_cancelled") === "1";
+  const [route, setRoute] = useState(payWayPaymentId ? "payway-return" : "home");
   const [productId, setProductId] = useState(null);
   const [productBackRoute, setProductBackRoute] = useState("home");
   const [telegramUser, setTelegramUser] = useState(null);
@@ -72,6 +76,16 @@ export default function App() {
           {route === "payment" && paid && (
             <PaymentSuccess onContinue={() => { setPaid(false); setCheckout(null); navigate("home"); }} />
           )}
+          {route === "payway-return" && (
+            <PayWayReturnPage
+              paymentId={payWayPaymentId}
+              cancelled={payWayCancelled}
+              onContinue={() => {
+                window.history.replaceState({}, "", window.location.pathname);
+                navigate("home");
+              }}
+            />
+          )}
           {route === "profile" && (
             <Profile
               user={telegramUser}
@@ -97,5 +111,5 @@ export default function App() {
 }
 
 function PaymentSuccess({ onContinue }) {
-  return <div className="success-state page-shell"><span>✓</span><h1>Payment received</h1><p>Your Bakong payment is confirmed. We’ll send delivery updates in Telegram.</p><button className="primary-button" onClick={onContinue}>Continue shopping</button></div>;
+  return <div className="success-state page-shell"><span>✓</span><h1>Payment received</h1><p>Your payment is confirmed. We’ll send delivery updates in Telegram.</p><button className="primary-button" onClick={onContinue}>Continue shopping</button></div>;
 }

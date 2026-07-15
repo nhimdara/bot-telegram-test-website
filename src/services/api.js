@@ -117,8 +117,40 @@ export function createBakongPayment(orderId) {
   });
 }
 
+export function createPayWayPayment(orderId) {
+  return request(`/orders/${encodeURIComponent(orderId)}/payway-payment`, {
+    method: "POST",
+  });
+}
+
+export function submitPayWayCheckout(checkout) {
+  if (!checkout?.url || !checkout?.fields) {
+    throw new Error("ABA PayWay checkout details are missing.");
+  }
+
+  const form = document.createElement("form");
+  form.method = "POST";
+  form.action = checkout.url;
+  form.style.display = "none";
+  Object.entries(checkout.fields).forEach(([name, value]) => {
+    const input = document.createElement("input");
+    input.type = "hidden";
+    input.name = name;
+    input.value = value ?? "";
+    form.appendChild(input);
+  });
+  document.body.appendChild(form);
+  form.submit();
+}
+
 export function checkBakongPayment(paymentId) {
   return request(`/payments/${encodeURIComponent(paymentId)}/check`, {
+    method: "POST",
+  });
+}
+
+export function checkPayWayPayment(paymentId) {
+  return request(`/payments/${encodeURIComponent(paymentId)}/payway-check`, {
     method: "POST",
   });
 }
