@@ -89,7 +89,7 @@ export default function PaymentPage({ payment: initialPayment, onPaid, onBack, o
           <span className="eyebrow">Secure checkout</span>
           <h1>{isPayWay ? "Pay with ABA PayWay KHQR" : "Pay with any bank"}</h1>
           <p className="payment-intro">This KHQR can be paid from Cambodian banking apps that support KHQR.</p>
-          <p className="payment-warning"><b>Important:</b> Pay from a different bank or Bakong account. The receiving account cannot pay itself.</p>
+          {!isPayWay && <p className="payment-warning"><b>Important:</b> Pay from a different bank or Bakong account. The receiving account cannot pay itself.</p>}
           <div className="qr-frame">
             {qrUrl ? <img src={qrUrl} alt={`${isPayWay ? "ABA PayWay" : "Bakong"} KHQR payment code`} /> : <div className="qr-loading">Preparing KHQR…</div>}
           </div>
