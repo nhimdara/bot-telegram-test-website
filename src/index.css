@@ -25,7 +25,8 @@ body {
   min-height: 100vh;
 }
 button,
-input {
+input,
+textarea {
   font: inherit;
 }
 button {
@@ -35,6 +36,11 @@ button:focus-visible,
 input:focus-visible {
   outline: 3px solid rgba(78, 94, 18, 0.28);
   outline-offset: 2px;
+}
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+  transform: none;
 }
 .app {
   min-height: 100vh;
@@ -670,6 +676,167 @@ input:focus-visible {
   color: var(--muted);
   margin: 13px 0 0;
 }
+.checkout-field {
+  display: block;
+  margin: 15px 0;
+  font-size: 11px;
+  font-weight: 700;
+}
+.checkout-field small {
+  color: var(--muted);
+  font-weight: 400;
+}
+.checkout-field input,
+.checkout-field textarea {
+  display: block;
+  width: 100%;
+  margin-top: 7px;
+  border: 1px solid #d3d0c6;
+  border-radius: 10px;
+  background: #fff;
+  padding: 11px 12px;
+  font-size: 12px;
+  color: var(--ink);
+}
+.checkout-field textarea {
+  min-height: 70px;
+  resize: vertical;
+}
+.form-error {
+  color: #a43b32 !important;
+  background: #f8e3df;
+  border-radius: 9px;
+  padding: 10px 12px;
+  text-align: left !important;
+  font-size: 11px !important;
+  line-height: 1.4;
+}
+.payment-page {
+  padding: 25px 0 120px;
+}
+.payment-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 610px) 330px;
+  justify-content: center;
+  gap: 28px;
+  align-items: start;
+  margin-top: 15px;
+}
+.payment-card,
+.payment-summary {
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background: #fff;
+}
+.payment-card {
+  padding: 38px;
+  text-align: center;
+}
+.payment-card h1 {
+  font: 400 43px/1 "DM Serif Display";
+  margin: 10px 0 12px;
+}
+.payment-intro {
+  max-width: 410px;
+  margin: 0 auto 24px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+.qr-frame {
+  width: min(100%, 330px);
+  aspect-ratio: 1;
+  margin: auto;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 19px;
+  background: #fff;
+}
+.qr-frame img {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.qr-loading {
+  height: 100%;
+  display: grid;
+  place-items: center;
+  background: #f4f2ec;
+  border-radius: 12px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.payment-timer {
+  display: flex;
+  justify-content: center;
+  gap: 9px;
+  margin: 16px 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+.payment-timer strong {
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.payment-timer.expired {
+  color: #a43b32;
+  font-weight: 700;
+}
+.payment-card .primary-button {
+  max-width: 330px;
+}
+.auto-check-note {
+  color: var(--muted);
+  font-size: 10px;
+  margin: 13px 0 0;
+}
+.auto-check-note span {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 5px;
+  border-radius: 50%;
+  background: #798430;
+}
+.payment-summary {
+  padding: 28px;
+}
+.payment-summary h2 {
+  font: 400 27px "DM Serif Display";
+  margin: 11px 0 24px;
+}
+.payment-summary > div:not(.bakong-mark) {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 9px 0;
+  font-size: 11px;
+}
+.payment-total {
+  align-items: end;
+  border-top: 1px solid var(--line);
+  margin-top: 12px;
+  padding-top: 19px !important;
+}
+.payment-total strong {
+  font: 400 25px "DM Serif Display";
+}
+.bakong-mark {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 25px;
+  padding: 13px;
+  border-radius: 10px;
+  background: #f4f2ec;
+}
+.bakong-mark b {
+  color: #bd2734;
+}
+.bakong-mark span {
+  color: var(--muted);
+  font-size: 10px;
+}
 .empty-cart,
 .success-state {
   min-height: 70vh;
@@ -1140,6 +1307,21 @@ footer .brand {
   }
   .order-summary {
     position: static;
+  }
+  .payment-page {
+    padding-top: 8px;
+  }
+  .payment-layout {
+    grid-template-columns: 1fr;
+  }
+  .payment-card {
+    padding: 28px 18px;
+  }
+  .payment-card h1 {
+    font-size: 37px;
+  }
+  .payment-summary {
+    order: -1;
   }
   .cart-item-end strong {
     font-size: 13px;

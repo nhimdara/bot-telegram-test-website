@@ -5,8 +5,10 @@ import CartPage from "./pages/CartPage";
 import Profile from "./pages/Profile";
 import ProductDetail from "./pages/ProductDetail";
 import CategoryPage from "./pages/CategoryPage";
+import PaymentPage from "./pages/PaymentPage";
 import { CartProvider } from "./context/CartContext";
 import { initializeTelegram } from "./services/telegram";
+import { createBakongPayment } from "./services/api";
 
 export default function App() {
   const [route, setRoute] = useState("home");
@@ -14,6 +16,8 @@ export default function App() {
   const [productBackRoute, setProductBackRoute] = useState("home");
   const [telegramUser, setTelegramUser] = useState(null);
   const [telegramError, setTelegramError] = useState("");
+  const [checkout, setCheckout] = useState(null);
+  const [paid, setPaid] = useState(false);
   useEffect(() => {
     initializeTelegram()
       .then(setTelegramUser)
@@ -50,7 +54,22 @@ export default function App() {
               onCart={() => navigate("cart")}
             />
           )}
-          {route === "cart" && <CartPage onShop={() => navigate("home")} />}
+          {route === "cart" && <CartPage onShop={() => navigate("home")} onPayment={(value) => { setCheckout(value); navigate("payment"); }} />}
+          {route === "payment" && checkout && !paid && (
+            <PaymentPage
+              key={checkout.payment.expires_at}
+              payment={checkout.payment}
+              onBack={() => navigate("home")}
+              onPaid={() => setPaid(true)}
+              onRenew={async () => {
+                const payment = await createBakongPayment(checkout.order.id);
+                setCheckout((current) => ({ ...current, payment }));
+              }}
+            />
+          )}
+          {route === "payment" && paid && (
+            <PaymentSuccess onContinue={() => { setPaid(false); setCheckout(null); navigate("home"); }} />
+          )}
           {route === "profile" && (
             <Profile
               user={telegramUser}
@@ -69,4 +88,8 @@ export default function App() {
       </div>
     </CartProvider>
   );
+}
+
+function PaymentSuccess({ onContinue }) {
+  return <div className="success-state page-shell"><span>✓</span><h1>Payment received</h1><p>Your Bakong payment is confirmed. We’ll send delivery updates in Telegram.</p><button className="primary-button" onClick={onContinue}>Continue shopping</button></div>;
 }

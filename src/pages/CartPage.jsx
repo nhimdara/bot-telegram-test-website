@@ -1,27 +1,54 @@
 import { useState } from "react";
 import Cart from "../components/Cart";
 import { useCart } from "../context/CartContext";
+import { createBakongPayment, createOrder, replaceServerCart } from "../services/api";
 
-export default function CartPage({ onShop }) {
+export default function CartPage({ onShop, onPayment }) {
   const { items, subtotal, clearCart } = useCart();
-  const [ordered, setOrdered] = useState(false);
-  if (ordered) return <div className="success-state page-shell"><span>✓</span><h1>Order received</h1><p>We’ll send an update in Telegram as soon as your parcel is on its way.</p><button className="primary-button" onClick={() => { clearCart(); onShop(); }}>Continue shopping</button></div>;
+  const [address, setAddress] = useState("");
+  const [notes, setNotes] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
+  const [pendingOrder, setPendingOrder] = useState(null);
   if (!items.length) return <div className="empty-cart page-shell"><div className="empty-bag">Bag</div><h1>Your bag is feeling light</h1><p>Discover something lovely and come back when you’re ready.</p><button className="primary-button" onClick={onShop}>Browse the collection →</button></div>;
 
-  const shipping = subtotal >= 120 ? 0 : 8;
+  const checkout = async (event) => {
+    event.preventDefault();
+    setSubmitting(true);
+    setError("");
+    try {
+      let order = pendingOrder;
+      if (!order) {
+        await replaceServerCart(items);
+        order = await createOrder(address, notes);
+        setPendingOrder(order);
+      }
+      const payment = await createBakongPayment(order.id);
+      clearCart();
+      onPayment({ order, payment });
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <div className="cart-page page-shell">
       <div className="cart-title"><span className="eyebrow">Your selection</span><h1>Shopping bag <small>{items.length}</small></h1></div>
       <div className="cart-layout">
         <Cart />
-        <aside className="order-summary">
+        <form className="order-summary" onSubmit={checkout}>
           <h2>Order summary</h2>
           <div><span>Subtotal</span><b>${subtotal}</b></div>
-          <div><span>Shipping</span><b>{shipping ? `$${shipping}` : "Free"}</b></div>
-          <div className="summary-total"><span>Total</span><strong>${subtotal + shipping}</strong></div>
-          <button className="primary-button wide" onClick={() => setOrdered(true)}>Checkout securely →</button>
-          <p>Secure checkout · 30-day returns</p>
-        </aside>
+          <div><span>Shipping</span><b>Free</b></div>
+          <div className="summary-total"><span>Total</span><strong>${subtotal}</strong></div>
+          <label className="checkout-field">Delivery address<input value={address} onChange={(event) => setAddress(event.target.value)} maxLength="255" required placeholder="Street, city, province" /></label>
+          <label className="checkout-field">Order note <small>Optional</small><textarea value={notes} onChange={(event) => setNotes(event.target.value)} maxLength="2000" placeholder="Delivery instructions" /></label>
+          {error && <p className="form-error" role="alert">{error}</p>}
+          <button className="primary-button wide" disabled={submitting}>{submitting ? "Preparing Bakong…" : "Pay with Bakong →"}</button>
+          <p>Secure Bakong KHQR checkout</p>
+        </form>
       </div>
     </div>
   );

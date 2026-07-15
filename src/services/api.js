@@ -15,8 +15,9 @@ function lookFor(category) {
 
 async function request(path, options = {}) {
   const token = sessionStorage.getItem("telegram-shop-token");
+  const { responseType, ...fetchOptions } = options;
   const response = await fetch(`${API_URL}${path}`, {
-    ...options,
+    ...fetchOptions,
     headers: {
       Accept: "application/json",
       ...(options.body ? { "Content-Type": "application/json" } : {}),
@@ -26,9 +27,17 @@ async function request(path, options = {}) {
   });
 
   if (!response.ok) {
-    throw new Error(`API request failed (${response.status})`);
+    const body = await response.json().catch(() => null);
+    const validationMessage = body?.errors
+      ? Object.values(body.errors).flat().find(Boolean)
+      : null;
+    throw new Error(
+      validationMessage || body?.message || `API request failed (${response.status})`,
+    );
   }
 
+  if (responseType === "blob") return response.blob();
+  if (response.status === 204) return null;
   return response.json();
 }
 
@@ -81,4 +90,39 @@ export function getStoredTelegramUser() {
   } catch {
     return null;
   }
+}
+
+export async function replaceServerCart(items) {
+  await request("/cart", { method: "DELETE" });
+  for (const item of items) {
+    await request("/cart/items", {
+      method: "POST",
+      body: JSON.stringify({ product_id: item.id, quantity: item.quantity }),
+    });
+  }
+}
+
+export function createOrder(address, notes = "") {
+  return request("/orders", {
+    method: "POST",
+    body: JSON.stringify({ address, notes: notes || null }),
+  });
+}
+
+export function createBakongPayment(orderId) {
+  return request(`/orders/${encodeURIComponent(orderId)}/payment`, {
+    method: "POST",
+  });
+}
+
+export function checkBakongPayment(paymentId) {
+  return request(`/payments/${encodeURIComponent(paymentId)}/check`, {
+    method: "POST",
+  });
+}
+
+export function fetchPaymentQr(paymentId) {
+  return request(`/payments/${encodeURIComponent(paymentId)}/qr`, {
+    responseType: "blob",
+  });
 }
