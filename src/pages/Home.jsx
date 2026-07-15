@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import ProductCard from "../components/ProductCard";
 import { fetchCategories, fetchProducts } from "../services/api";
-import { useCart } from "../context/CartContext";
+import useCart from "../context/useCart";
 
 export default function Home({ onOpenProduct }) {
   const [products, setProducts] = useState([]);

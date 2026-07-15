@@ -132,7 +132,7 @@ function OrderTable({ records, actions }) {
 
 function Orders({ records, refresh, setError }) {
   const update = async (order, status) => { try { await updateAdminRecord("orders", order.id, { status }); await refresh(); } catch (err) { setError(err.message); } };
-  return <section className="admin-panel"><div className="panel-title"><h2>Orders and fulfillment</h2><p>Paid status is controlled by Bakong verification.</p></div><OrderTable records={records} actions={(order) => <select value={order.status} onChange={(event) => update(order, event.target.value)}>{orderStatuses.map((status) => <option key={status}>{status}</option>)}</select>} /></section>;
+  return <section className="admin-panel"><div className="panel-title"><h2>Orders and fulfillment</h2><p>Paid status is controlled by verified payment-provider transactions.</p></div><OrderTable records={records} actions={(order) => <select value={order.status} onChange={(event) => update(order, event.target.value)}>{orderStatuses.map((status) => <option key={status}>{status}</option>)}</select>} /></section>;
 }
 
 function Users({ records, refresh, setError }) {
@@ -142,5 +142,5 @@ function Users({ records, refresh, setError }) {
 }
 
 function Payments({ records }) {
-  return <section className="admin-panel"><div className="panel-title"><h2>Bakong payments</h2><p>Verified transaction records are read-only.</p></div><div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>Payment</th><th>Order</th><th>Customer</th><th>Amount</th><th>Status</th><th>Paid at</th></tr></thead><tbody>{records.map((payment) => <tr key={payment.id}><td><b>#{payment.id}</b><small>{payment.provider}</small></td><td>#{payment.order_id}</td><td>{payment.order?.user?.name || "—"}</td><td>{payment.currency} {payment.amount}</td><td><span className={`status ${payment.status}`}>{payment.status}</span></td><td>{date(payment.paid_at)}</td></tr>)}</tbody></table></div></section>;
+  return <section className="admin-panel"><div className="panel-title"><h2>Payments</h2><p>Verified Bakong and ABA PayWay transaction records are read-only.</p></div><div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>Payment</th><th>Order</th><th>Customer</th><th>Amount</th><th>Status</th><th>Paid at</th></tr></thead><tbody>{records.map((payment) => <tr key={payment.id}><td><b>#{payment.id}</b><small>{payment.provider === "payway" ? "ABA PayWay" : "Bakong"}</small></td><td>#{payment.order_id}</td><td>{payment.order?.user?.name || "—"}</td><td>{payment.currency} {payment.amount}</td><td><span className={`status ${payment.status}`}>{payment.status}</span></td><td>{date(payment.paid_at)}</td></tr>)}</tbody></table></div></section>;
 }

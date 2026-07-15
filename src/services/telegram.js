@@ -1,4 +1,4 @@
-import { authenticateTelegram, getStoredTelegramUser } from "./api";
+import { authenticateTelegram, fetchProfile, getStoredTelegramUser } from "./api";
 
 let authentication;
 
@@ -7,7 +7,14 @@ export function initializeTelegram() {
 
   const webApp = window.Telegram?.WebApp;
   if (!webApp?.initData) {
-    return Promise.resolve(getStoredTelegramUser());
+    const storedUser = getStoredTelegramUser();
+    if (!storedUser || !sessionStorage.getItem("telegram-shop-token")) {
+      return Promise.resolve(storedUser);
+    }
+    return fetchProfile().then((user) => {
+      sessionStorage.setItem("telegram-shop-user", JSON.stringify(user));
+      return user;
+    });
   }
 
   webApp.ready();

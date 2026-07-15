@@ -30,6 +30,10 @@ async function request(path, options = {}) {
 
   if (!response.ok) {
     const body = await response.json().catch(() => null);
+    if (response.status === 401 && path !== "/auth/telegram") {
+      sessionStorage.removeItem("telegram-shop-token");
+      sessionStorage.removeItem("telegram-shop-user");
+    }
     const validationMessage = body?.errors
       ? Object.values(body.errors).flat().find(Boolean)
       : null;
@@ -92,6 +96,20 @@ export function getStoredTelegramUser() {
   } catch {
     return null;
   }
+}
+
+export function fetchProfile() {
+  return request("/profile");
+}
+
+export function fetchOrders() {
+  return request("/orders");
+}
+
+export function cancelOrder(orderId) {
+  return request(`/orders/${encodeURIComponent(orderId)}/cancel`, {
+    method: "POST",
+  });
 }
 
 export async function replaceServerCart(items) {

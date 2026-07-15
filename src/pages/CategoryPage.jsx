@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import ProductCard from "../components/ProductCard";
-import { useCart } from "../context/CartContext";
+import useCart from "../context/useCart";
 import { fetchCategories, fetchProducts } from "../services/api";
 
 const categoryStyles = [

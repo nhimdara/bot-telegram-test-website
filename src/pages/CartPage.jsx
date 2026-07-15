@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Cart from "../components/Cart";
-import { useCart } from "../context/CartContext";
+import useCart from "../context/useCart";
 import { createBakongPayment, createOrder, createPayWayQrPayment, replaceServerCart } from "../services/api";
 
 export default function CartPage({ onShop, onPayment }) {

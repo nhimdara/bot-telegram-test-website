@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { fetchProductById } from "../services/api";
-import { useCart } from "../context/CartContext";
+import useCart from "../context/useCart";
 import ProductVisual from "../components/ProductVisual";
 
 export default function ProductDetail({ productId, onBack, onCart }) {

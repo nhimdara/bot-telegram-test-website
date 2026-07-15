@@ -1,4 +1,5 @@
-import { useCart } from "../context/CartContext";
+import useCart from "../context/useCart";
+import ProductVisual from "./ProductVisual";
 
 export default function Cart() {
   const { items, changeQuantity, removeFromCart } = useCart();
@@ -6,7 +7,7 @@ export default function Cart() {
     <div className="cart-list">
       {items.map((item) => (
         <article className="cart-item" key={item.id}>
-          <div className="cart-thumb" style={{ "--art-a": item.palette?.[0], "--art-b": item.palette?.[1] }}>{item.emoji}</div>
+          <div className="cart-thumb" style={{ "--art-a": item.palette?.[0], "--art-b": item.palette?.[1] }}><ProductVisual product={item} /></div>
           <div className="cart-item-info">
             <span>{item.category}</span><h3>{item.title}</h3><small>{item.color}</small>
             <div className="quantity-control">
